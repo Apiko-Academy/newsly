@@ -1,0 +1,55 @@
+  nav .brand-logo
+{
+  color: #100;
+  font-weight: 200;
+}
+nav .currentUser
+{
+  color: #200;
+  font-weight: 200;
+}
+nav i
+{
+  color: #200;
+}
+nav i:hover
+{
+  color: #26a69a;
+}
+.currentUserImg
+{
+  margin-top: 5px;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+.mainHeader
+{
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 1.5em;
+  color: #200;
+}
+
+blockquote
+{
+  border-left: 5px solid #26a69a;
+}
+
+#signin
+{
+  padding-top: 30vw;
+}
+
+#signin div h1
+{
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #26a69a;
+}
+
+#signin div a
+{
+  font-weight: 200;
+  text-transform: uppercase;
+  color: #004e42;
+}
