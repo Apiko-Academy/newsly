@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 import session from 'cookie-session';
 
 import passportConfig from './config/passport/passport.config';
-import indexRouter from './routers/index';
 import authRouter from './routers/auth';
 import logoutRouter from './routers/logout';
 import syncRouter from './routers/sync';
@@ -30,7 +29,6 @@ app.use(express.static('dist'));
 app.use(session({ secret: process.env.SESSION_SECRET }));
 passportConfig(app);
 
-app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/logout', logoutRouter);
 app.use('/sync', syncRouter);

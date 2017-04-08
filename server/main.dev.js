@@ -6,11 +6,10 @@ import dotenv from 'dotenv';
 import session from 'cookie-session';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
-
+import fs from 'fs';
 import passportConfig from './config/passport/passport.config';
 import webpackConfig from './../webpack.config.dev';
 
-import indexRouter from './routers/index';
 import authRouter from './routers/auth';
 import logoutRouter from './routers/logout';
 import syncRouter from './routers/sync';
@@ -42,13 +41,15 @@ app.use(webpackDevMiddleware(compiler, {
 
 app.use(webpackHotMiddleware(compiler));
 
-app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/logout', logoutRouter);
 app.use('/sync', syncRouter);
 app.use('/api/users', usersApiRouter);
 app.use('/api/boards', boardsApiRouter);
 app.use('/api/actions', actionsApiRouter);
+app.use((req, res) => {
+  res.contentType('text/html').sendFile(`${fs.realpathSync(process.cwd())}/app/public/index.html`);
+});
 
 app.listen(port, () => {
   console.log(`app running on ${port} port`);
