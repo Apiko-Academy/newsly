@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 import CommentCard from './actionTypes/CommentCard';
 import CreateBoard from './actionTypes/CreateBoard';
@@ -8,9 +8,17 @@ import AddAttachment from './actionTypes/AddAttachment';
 import DeleteAttachment from './actionTypes/DeleteAttachment';
 import AddMemberToBoard from './actionTypes/AddMemberToBoard';
 
+const propTypes = {
+  type: PropTypes.string,
+  author: PropTypes.object,
+  data: PropTypes.object,
+  date: PropTypes.string,
+};
+
 const Action = (props) => {
   const { author, date } = props;
   const { board, list, card, attachment, text, idMemberAdded } = props.data;
+
   switch (props.type) {
     case 'commentCard':
       return (<CommentCard
@@ -68,11 +76,6 @@ const Action = (props) => {
   }
 };
 
-Action.propTypes = {
-  type: React.PropTypes.string,
-  author: React.PropTypes.shape,
-  data: React.PropTypes.shape,
-  date: React.PropTypes.string,
-};
+Action.propTypes = propTypes;
 
 export default Action;

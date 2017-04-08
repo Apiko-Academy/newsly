@@ -1,5 +1,5 @@
 /* eslint-disable no-undef, no-else-return, react/forbid-prop-types */
-import React from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
 import update from 'react-addons-update';
 import qsp from 'query-string-parser';
@@ -7,7 +7,7 @@ import Navbar from './Navbar';
 import Filter from './Filter';
 import Action from './Action';
 
-class MainLayout extends React.Component {
+class MainLayout extends Component {
   constructor(props) {
     super(props);
     this.handleSelect = this.handleSelect.bind(this);
@@ -92,25 +92,27 @@ class MainLayout extends React.Component {
       .catch(err => console.error(`ERR: getting filtered users error - ${err.message}`));
   }
   render() {
+    const { currentUser, users, boards, actions } = this.state;
+
     return (
       <div>
         <Navbar
-          displayName={this.state.currentUser.displayName}
-          avatarUrl={this.state.currentUser.avatarUrl}
+          displayName={currentUser.displayName}
+          avatarUrl={currentUser.avatarUrl}
         />
         <div className="row">
           <div className="col s3">
             <h1 className="mainHeader center">news filter</h1>
             <Filter
               handleSelect={this.handleSelect}
-              users={this.state.users}
-              boards={this.state.boards}
+              users={users}
+              boards={boards}
             />
           </div>
           <div className="col s9">
             <h1 className="mainHeader center">news feed</h1>
             <ul className="collection">
-              {this.state.actions.map(a => (
+              {actions.map(a => (
                 <Action
                   key={a._id}
                   type={a.type}
@@ -126,4 +128,5 @@ class MainLayout extends React.Component {
     );
   }
 }
+
 export default MainLayout;

@@ -1,36 +1,42 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 
-class Filter extends React.Component {
+const propTypes = {
+  handleSelect: PropTypes.func,
+  boards: PropTypes.array.isRequired,
+  users: PropTypes.array.isRequired,
+};
+
+class Filter extends Component {
   componentDidMount() {
     /* eslint-disable no-undef */
     $('#boardSelectWrap').on('change', '#boardSelect', this.props.handleSelect);
     $('#userSelectWrap').on('change', '#userSelect', this.props.handleSelect);
   }
   render() {
+    const { boards, users } = this.props;
+
     return (
       <div>
         <div id="boardSelectWrap" className="card-panel white row">
           <label htmlFor="boardSelect">Boards</label>
           <select id="boardSelect" multiple>
             <option value="selected" disabled>Choose board</option>
-            {this.props.boards.map(board => (
+            { boards.map(board => (
               <option value={board.boardId} key={board._id}>
-                {board.title}
+                { board.title }
               </option>
-            )
-          )}
+            )) }
           </select>
         </div>
         <div id="userSelectWrap" className="card-panel white row">
           <label htmlFor="userSelect">Users</label>
           <select id="userSelect" multiple>
             <option value="selected" disabled>Choose user</option>
-            {this.props.users.map(user => (
+            { users.map(user => (
               <option value={user.id} key={user.id}>
-                {user.fullName}
+                { user.fullName }
               </option>
-            )
-          )}
+            )) }
           </select>
         </div>
       </div>
@@ -38,10 +44,6 @@ class Filter extends React.Component {
   }
 }
 
-Filter.propTypes = {
-  handleSelect: React.PropTypes.func,
-  boards: React.PropTypes.array.isRequired,
-  users: React.PropTypes.array.isRequired,
-};
+Filter.propTypes = propTypes;
 
 export default Filter;

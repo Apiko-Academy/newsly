@@ -1,7 +1,20 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
 import axios from 'axios';
 
-class AddMemberToBoard extends React.Component {
+const propTypes = {
+  idMemberAdded: PropTypes.string,
+  author: PropTypes.shape({
+    avatarHash: PropTypes.string,
+    fullName: PropTypes.string,
+  }),
+  board: PropTypes.shape({
+    shortLink: PropTypes.string,
+    name: PropTypes.string,
+  }),
+  date: PropTypes.string,
+};
+
+class AddMemberToBoard extends Component {
   constructor(props) {
     super(props);
     this.memberAdded = '';
@@ -10,34 +23,35 @@ class AddMemberToBoard extends React.Component {
         this.memberAdded = users.data.filter(m => m.id === this.props.idMemberAdded)[0].fullName;
       });
   }
+
   render() {
+    const { author, board, date } = this.props;
+    const { avatarHash } = author;
+    const avatarUrl = avatarHash ?
+      `http://trello-avatars.s3.amazonaws.com/${avatarHash}/50.png` :
+      `img/default_user_icon.png`;
+
     return (
       <li className="collection-item avatar">
         <img
-          src={this.props.author.avatarHash ?
-          `http://trello-avatars.s3.amazonaws.com/${this.props.author.avatarHash}/50.png` :
-          `img/default_user_icon.png`}
-          alt="avatar" className="circle"
+          src={avatarUrl}
+          alt="avatar"
+          className="circle"
         />
         <span className="title">
-          {this.props.author.fullName} added {this.memberAdded} to&nbsp;
-          <a target="_blank" rel="noopener noreferrer" href={`https://trello.com/b/${this.props.board.shortLink}`}>
-            {this.props.board.name}
+          { author.fullName } added { this.memberAdded } to&nbsp;
+          <a target="_blank" rel="noopener noreferrer" href={`https://trello.com/b/${board.shortLink}`}>
+            { board.name }
           </a>
         </span>
         <small>
-          {this.props.date}
+          { date }
         </small>
       </li>
     );
   }
 }
 
-AddMemberToBoard.propTypes = {
-  idMemberAdded: React.PropTypes.string,
-  author: React.PropTypes.object,
-  board: React.PropTypes.object,
-  date: React.PropTypes.string,
-};
+AddMemberToBoard.propTypes = propTypes;
 
 export default AddMemberToBoard;
