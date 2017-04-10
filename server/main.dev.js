@@ -28,7 +28,6 @@ winston.configure({
     new (winston.transports.File)({ filename: 'debug.log' }),
   ],
 });
-
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGO_URL);
 const db = mongoose.connection;
@@ -52,6 +51,7 @@ app.use('/sync', syncRouter);
 app.use('/api/users', usersApiRouter);
 app.use('/api/boards', boardsApiRouter);
 app.use('/api/actions', actionsApiRouter);
+
 app.use((req, res) => {
   res.contentType('text/html').sendFile(path.join(__dirname, '../app/public/index.html'));
 });
