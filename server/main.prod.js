@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import path from 'path';
 import dotenv from 'dotenv';
 import session from 'cookie-session';
+import winston from 'winston';
 
 import passportConfig from './config/passport/passport.config';
 import authRouter from './routers/auth';
@@ -12,19 +13,24 @@ import usersApiRouter from './routers/api/trelloUsers';
 import boardsApiRouter from './routers/api/boards';
 import actionsApiRouter from './routers/api/actions';
 
-/* eslint-disable no-console */
 dotenv.config();
 
 const port = process.env.PORT || 3000;
 const app = express();
 
+winston.configure({
+  transports: [
+    new (winston.transports.File)({ filename: 'debug.log' }),
+  ],
+});
+
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGO_URL_MLAB);
 const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', () => console.log('db connected'));
+db.on('error', err => winston.error(`Connection error${err.message}`));
+db.once('open', () => winston.info('Connection opened'));
 
-app.use(express.static(path.join(__dirname, './../app/public')));
+app.use(express.static(path.join(__dirname, '../app/public')));
 app.use(express.static('dist'));
 app.use(session({ secret: process.env.SESSION_SECRET }));
 passportConfig(app);
@@ -36,6 +42,10 @@ app.use('/api/users', usersApiRouter);
 app.use('/api/boards', boardsApiRouter);
 app.use('/api/actions', actionsApiRouter);
 
+app.use((req, res) => {
+  res.contentType('text/html').sendFile(path.join(__dirname, '../app/public/index.html'));
+});
+
 app.listen(port, () => {
-  console.log(`app running on ${port} port`);
+  winston.info(`app running on ${port} port`);
 });

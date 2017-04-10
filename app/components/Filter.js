@@ -1,48 +1,56 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PropTypes } from 'react';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
+import { Card, CardHeader } from 'material-ui/Card';
+import Paper from 'material-ui/Paper';
+import styles from './styles';
 
 const propTypes = {
   handleSelect: PropTypes.func,
   boards: PropTypes.array.isRequired,
   users: PropTypes.array.isRequired,
+  filter: PropTypes.shape({
+    users: PropTypes.arrayOf(PropTypes.string),
+    boards: PropTypes.arrayOf(PropTypes.string),
+  }),
 };
 
-class Filter extends Component {
-  componentDidMount() {
-    /* eslint-disable no-undef */
-    $('#boardSelectWrap').on('change', '#boardSelect', this.props.handleSelect);
-    $('#userSelectWrap').on('change', '#userSelect', this.props.handleSelect);
-  }
-  render() {
-    const { boards, users } = this.props;
+const Filter = (props) => {
+  const { boards, users, filter, handleSelect } = props;
+  const { users: pickedUsers, boards: pickedBoards } = filter;
 
-    return (
-      <div>
-        <div id="boardSelectWrap" className="card-panel white row">
-          <label htmlFor="boardSelect">Boards</label>
-          <select id="boardSelect" multiple>
-            <option value="selected" disabled>Choose board</option>
-            { boards.map(board => (
-              <option value={board.boardId} key={board._id}>
-                { board.title }
-              </option>
-            )) }
-          </select>
-        </div>
-        <div id="userSelectWrap" className="card-panel white row">
-          <label htmlFor="userSelect">Users</label>
-          <select id="userSelect" multiple>
-            <option value="selected" disabled>Choose user</option>
-            { users.map(user => (
-              <option value={user.id} key={user.id}>
-                { user.fullName }
-              </option>
-            )) }
-          </select>
-        </div>
-      </div>
-    );
-  }
-}
+  const getUsers = () => users.map(user =>
+    <MenuItem value={user.id} primaryText={user.fullName} key={user.id} />);
+  const getBoards = () => boards.map(board =>
+    <MenuItem value={board.boardId} primaryText={board.title} key={board.boardId} />);
+
+  return (
+    <Paper>
+      <Card style={styles.cardStyles}>
+        <CardHeader title="Boards" style={styles.cardHeaderStyles} />
+        <SelectField
+          onChange={handleSelect('boards')}
+          value={pickedBoards}
+          style={styles.selectFieldStyles}
+          multiple
+        >
+          { getBoards() }
+        </SelectField>
+      </Card>
+      <Card style={styles.cardStyles}>
+        <CardHeader title="Users" style={styles.cardHeaderStyles} />
+        <SelectField
+          style={styles.selectFieldStyles}
+          onChange={handleSelect('users')}
+          value={pickedUsers}
+          multiple
+        >
+          { getUsers() }
+        </SelectField>
+      </Card>
+    </Paper>
+  );
+};
 
 Filter.propTypes = propTypes;
 
