@@ -1,6 +1,7 @@
 import passport from 'passport';
 import { Strategy as TrelloStrategy } from 'passport-trello';
-import TrelloUser from './../../models/userModel';
+import TrelloUser from '../../models/userModel';
+import errorHandler from '../../helpers/errorsHandler';
 
 export default () => {
   passport.use(new TrelloStrategy({
@@ -13,27 +14,34 @@ export default () => {
       expiration: 'never',
     },
   }, (accessToken, token, tokenSecret, profile, done) => {
-    TrelloUser.findOne({ userId: profile.id })
+    const { id: userId, _json } = profile;
+    const { username, fullName, avatarHash, idBoards } = _json;
+
+    TrelloUser.findOne({ userId })
+      .exec()
       .then((foundUser) => {
         if (foundUser) {
-          TrelloUser.findOneAndUpdate({ userId: profile.id }, {
+          TrelloUser.findOneAndUpdate({ userId }, {
             $set: { token: accessToken },
           })
+            .exec()
             .then(updatedUser => done(null, updatedUser))
-            .catch(err => console.error(`ERR: updating user's token error - ${err.message}`));
+            .catch(errorHandler('ERR: updating user\'s token error'));
         } else {
           new TrelloUser({
+            userId,
+            username,
+            idBoards,
             token: accessToken,
-            userId: profile.id,
-            username: profile._json.username,
-            displayName: profile._json.fullName,
-            avatarUrl: profile._json.avatarHash ? `http://trello-avatars.s3.amazonaws.com/${profile._json.avatarHash}/50.png` : `img/default_user_icon.png`,
-            idBoards: profile._json.idBoards,
+            displayName: fullName,
+            avatarUrl: avatarHash ?
+              `http://trello-avatars.s3.amazonaws.com/${avatarHash}/50.png` :
+              `img/default_user_icon.png`,
           }).save()
             .then(savedUser => done(null, savedUser))
-            .catch(err => console.error(`ERR: saving new user to db error - ${err.message}`));
+            .catch(errorHandler('ERR: saving new user to db error'));
         }
       })
-      .catch(err => console.error(`ERR: db error - ${err.message}`));
+      .catch(errorHandler('ERR: db error'));
   }));
 };

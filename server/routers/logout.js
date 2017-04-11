@@ -6,9 +6,9 @@ router.route('/')
   .get((req, res) => {
     if (req.isAuthenticated()) {
       req.logout();
-      res.redirect('/');
+      res.redirect('/signin');
     } else {
-      res.redirect('/');
+      res.redirect('/signin');
     }
   });
 

@@ -2,52 +2,55 @@ import express from 'express';
 import Trello from 'node-trello'; // trello api wrapper
 import Promise from 'bluebird';
 import date from 'date-and-time'; // date parser
+import winston from 'winston';
+import errorHandler from '../helpers/errorsHandler';
+import isLoggedIn from './helpers/checkAuthMiddleware';
 
-import Board from './../models/boardModel';
-import Action from './../models/actionModel';
+import Board from '../models/boardModel';
+import Action from '../models/actionModel';
 
 const router = express.Router();
 
-function isLoggedIn(req, res, next) {
-  if (req.isAuthenticated()) {
-    res.status(200);
-    next();
-  } else {
-    res.status(403).redirect('/');
-  }
-}
-
 function getBoards(req, res, next) {
-  console.log('fetching boards');
+  winston.info('Fetching boards');
+
   const trello = new Trello(process.env.TRELLO_CONSUMER_KEY, req.user.token);
   const getAsync = Promise.promisify(trello.get);
   Board.remove({ 'memberships.id': req.user.userId })
     .then(() => {
       getAsync.call(trello, `/1/member/me/boards`, { filter: 'open' })
         .filter(board => board.memberships.length > 1)
-        .map(board => new Board({
-          boardId: board.id,
-          title: board.name,
-          url: board.shortUrl,
-          memberships: [],
-        }).save()
-          .then(savedBoard => getAsync.call(trello, `/1/boards/${savedBoard.boardId}/members`, { fields: ['fullName', 'username', 'avatarHash'] }))
-            .then(members => Board.update({ boardId: board.id }, { memberships: members })
-              .catch(err => console.error(`ERR: updating board error - ${err.message}`)))
-            .catch(err => console.error(`ERR: fetching members error - ${err.message}`))
-          .catch(err => console.error(`ERR: saving board error - ${err.message}`))
+        .map(board =>
+          new Board({
+            boardId: board.id,
+            title: board.name,
+            url: board.shortUrl,
+            memberships: [],
+          }).save()
+            .then(savedBoard =>
+              getAsync.call(trello, `/1/boards/${savedBoard.boardId}/members`, {
+                fields: ['fullName', 'username', 'avatarHash'],
+              }).catch(errorHandler('ERR: fetching members')))
+            .then((members) => {
+              Board.update({ boardId: board.id }, {
+                memberships: members,
+              }).catch(errorHandler('ERR: updating board'));
+            })
+            .catch(errorHandler('ERR: saving board'))
         )
-        .then(() => { next(); })
-        .catch(err => console.error(`ERR: fetching boards error - ${err.message}`));
+      .then(() => { next(); })
+      .catch(errorHandler('ERR: fetching boards'));
     })
-    .catch(err => console.error(`ERR: removing boards error - ${err.message}`));
+    .catch(errorHandler('ERR: removing boards'));
 }
 
 function getActions(req, res, next) {
-  console.log('fetching actions');
+  winston.info('Fetching actions');
+
   const trello = new Trello(process.env.TRELLO_CONSUMER_KEY, req.user.token);
   const getAsync = Promise.promisify(trello.get);
   const findAsync = Promise.promisify(Board.find);
+
   findAsync.call(Board, { 'memberships.id': req.user.userId }, 'boardId')
     .map(board => getAsync.call(trello, `/1/boards/${board.boardId}/actions`, {
       limit: 100,
@@ -60,30 +63,30 @@ function getActions(req, res, next) {
         'deleteAttachmentFromCard',
         'addMemberToBoard',
       ],
-    })
-      .map((action) => {
-        const dateObject = date.parse(action.date, 'YYYY/MM/DD HH:mm:ss');
-        return Action.update(
-          { actionId: action.id },
-          {
-            actionId: action.id,
-            type: action.type,
-            date: date.format(dateObject, 'MMM DD, YY at HH:mm'),
-            createdAt: action.date,
-            author: action.memberCreator,
-            data: action.data,
-          },
-          { upsert: true, new: true })
-            .catch(err => console.error(`ERR: saving actions error - ${err.message}`));
-      })
-    )
-    .then(() => { next(); })
-    .catch(err => console.error(`ERR: getting boards from db erro - ${err.message}`));
+    }).map((action) => {
+      const dateObject = date.parse(action.date, 'YYYY/MM/DD HH:mm:ss');
+
+      return Action.update({
+        actionId: action.id,
+      }, {
+        actionId: action.id,
+        type: action.type,
+        date: date.format(dateObject, 'MMM DD, YY at HH:mm'),
+        createdAt: action.date,
+        author: action.memberCreator,
+        data: action.data,
+      }, {
+        upsert: true,
+        new: true,
+      }).catch(errorHandler('ERR: saving actions'));
+    }))
+    .then(() => next())
+    .catch(errorHandler('ERR: getting boards from db'));
 }
 
 router.route('/')
   .get([isLoggedIn, getBoards, getActions], (req, res) => {
-    console.log('Done with fetching trello data. Redirecting to main page..');
+    winston.info('Done with fetching trello data. Redirecting to main page..');
     res.redirect('/');
   });
 

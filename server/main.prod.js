@@ -43,7 +43,30 @@ app.use('/api/boards', boardsApiRouter);
 app.use('/api/actions', actionsApiRouter);
 
 app.use((req, res) => {
-  res.contentType('text/html').sendFile(path.join(__dirname, '../app/public/index.html'));
+  const currentPath = req.path;
+  const authenticated = req.isAuthenticated();
+
+  switch (currentPath) {
+    case '/': {
+      res.contentType('text/html').sendFile(path.join(__dirname, '../app/public/index.html'));
+      if (!authenticated) {
+        res.redirect('/signin');
+      }
+      break;
+    }
+
+    case '/signin': {
+      res.contentType('text/html').sendFile(path.join(__dirname, '../app/public/index.html'));
+      if (authenticated) {
+        res.redirect('/');
+      }
+      break;
+    }
+
+    default: {
+      res.redirect('/signin');
+    }
+  }
 });
 
 app.listen(port, () => {
