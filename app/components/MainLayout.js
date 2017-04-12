@@ -6,19 +6,20 @@ import { bindActionCreators } from 'redux';
 import Navbar from './Navbar';
 import Filter from './Filter';
 import Action from './Action';
-import * as actions from '../actions';
+import * as trelloActions from '../actions';
 
 const propTypes = {
   actions: PropTypes.objectOf(PropTypes.func),
   users: PropTypes.array,
   boards: PropTypes.array,
-  trelloActions: PropTypes.array,
+  actionsList: PropTypes.array,
   currentUser: PropTypes.object,
   filter: PropTypes.object,
 };
 
 const MainLayout = (props) => {
-  const { currentUser, users, boards, trelloActions, actions: { updateFilters }, filter } = props;
+  const { currentUser, users, boards, actionsList, actions, filter } = props;
+  const { updateFilters, fetchAllData } = actions;
 
   const handleSelect = type =>
     (event, index, value) => {
@@ -29,9 +30,21 @@ const MainLayout = (props) => {
       updateFilters(updatedFilter);
     };
 
+  const getActionsList = () => actionsList.map(a => (
+    <Action
+      key={a._id}
+      type={a.type}
+      author={a.author}
+      users={users}
+      data={a.data}
+      date={a.date}
+    />
+  ));
+
   return (
     <div>
       <Navbar
+        fetchAllData={fetchAllData}
         displayName={currentUser.displayName}
         avatarUrl={currentUser.avatarUrl}
       />
@@ -48,15 +61,7 @@ const MainLayout = (props) => {
         <div className="col s9">
           <h1 className="mainHeader center">news feed</h1>
           <ul className="collection">
-            { trelloActions.map(a => (
-              <Action
-                key={a._id}
-                type={a.type}
-                author={a.author}
-                data={a.data}
-                date={a.date}
-              />
-            ))}
+            { getActionsList() }
           </ul>
         </div>
       </div>
@@ -66,16 +71,16 @@ const MainLayout = (props) => {
 
 MainLayout.propTypes = propTypes;
 
-const mapStateToProps = ({ users, user, boards, actions: trelloActions, filter }) => ({
+const mapStateToProps = ({ users, user, boards, actions: actionsList, filter }) => ({
   users,
   boards,
-  trelloActions,
+  actionsList,
   currentUser: user,
   filter,
 });
 
 const mapDispatchToProps = dispatch => ({
-  actions: bindActionCreators(actions, dispatch),
+  actions: bindActionCreators(trelloActions, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainLayout);

@@ -3,7 +3,8 @@ import thunk from 'redux-thunk';
 
 import initialState from './initialState';
 import reducers from '../reducers';
-import * as actions from '../actions';
+import { fetchAllData } from '../actions';
+
 
 const store = createStore(
   reducers,
@@ -11,9 +12,6 @@ const store = createStore(
   applyMiddleware(thunk),
 );
 
-store.dispatch(actions.fetchUser());
-store.dispatch(actions.fetchBoards());
-store.dispatch(actions.fetchActions());
-store.dispatch(actions.fetchUsers());
+store.dispatch(fetchAllData(store.getState().filter));
 
 export default store;

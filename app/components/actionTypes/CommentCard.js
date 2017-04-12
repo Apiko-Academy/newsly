@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import getTrelloImageUrl from '../../helpers/getTrelloAvatarUrl';
 
 const propTypes = {
   author: PropTypes.shape({
@@ -12,25 +13,22 @@ const propTypes = {
     name: PropTypes.string,
     shortLink: PropTypes.string,
   }),
-  text: React.PropTypes.string,
-  date: React.PropTypes.string,
+  text: PropTypes.string,
+  date: PropTypes.string,
 };
 
 const CommentCard = (props) => {
   const { author, card, text, date, board } = props;
-  const { avatarHash } = author;
-  const avatarUrl = avatarHash ?
-    `http://trello-avatars.s3.amazonaws.com/${avatarHash}/50.png` :
-    `img/default_user_icon.png`;
+  const { avatarHash, fullName } = author;
 
   return (
     <li className="collection-item avatar">
       <img
-        src={avatarUrl}
+        src={getTrelloImageUrl(avatarHash)}
         alt="avatar" className="circle"
       />
       <span className="title">
-        <span>{ author.fullName }</span>&nbsp;
+        <span>{ fullName }</span>&nbsp;
         on <u>{ card.name }:</u>
       </span>
       <blockquote>{ text }</blockquote>

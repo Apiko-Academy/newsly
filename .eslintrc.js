@@ -12,6 +12,7 @@ module.exports = {
       "no-console": "off",
       "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
       "react/forbid-prop-types": "off",
+      "react/no-unused-prop-types": 0
     },
     "globals": {
       "window": true,

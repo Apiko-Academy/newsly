@@ -1,8 +1,8 @@
-import React, { Component, PropTypes } from 'react';
-import axios from 'axios';
+import React, { PropTypes } from 'react';
+import getTrelloImageUrl from '../../helpers/getTrelloAvatarUrl';
 
 const propTypes = {
-  idMemberAdded: PropTypes.string,
+  addedMemberName: PropTypes.string,
   author: PropTypes.shape({
     avatarHash: PropTypes.string,
     fullName: PropTypes.string,
@@ -14,43 +14,29 @@ const propTypes = {
   date: PropTypes.string,
 };
 
-class AddMemberToBoard extends Component {
-  constructor(props) {
-    super(props);
-    this.memberAdded = '';
-    axios.get(`/api/users/`)
-      .then((users) => {
-        this.memberAdded = users.data.filter(m => m.id === this.props.idMemberAdded)[0].fullName;
-      });
-  }
+const AddMemberToBoard = (props) => {
+  const { author, board, date, addedMemberName } = props;
+  const { avatarHash, fullName } = author;
 
-  render() {
-    const { author, board, date } = this.props;
-    const { avatarHash } = author;
-    const avatarUrl = avatarHash ?
-      `http://trello-avatars.s3.amazonaws.com/${avatarHash}/50.png` :
-      `img/default_user_icon.png`;
-
-    return (
-      <li className="collection-item avatar">
-        <img
-          src={avatarUrl}
-          alt="avatar"
-          className="circle"
-        />
-        <span className="title">
-          { author.fullName } added { this.memberAdded } to&nbsp;
-          <a target="_blank" rel="noopener noreferrer" href={`https://trello.com/b/${board.shortLink}`}>
-            { board.name }
-          </a>
-        </span>
-        <small>
-          { date }
-        </small>
-      </li>
-    );
-  }
-}
+  return (
+    <li className="collection-item avatar">
+      <img
+        src={getTrelloImageUrl(avatarHash)}
+        alt="avatar"
+        className="circle"
+      />
+      <span className="title">
+        { fullName } added { addedMemberName } to&nbsp;
+        <a target="_blank" rel="noopener noreferrer" href={`https://trello.com/b/${board.shortLink}`}>
+          { board.name }
+        </a>
+      </span>
+      <small>
+        { date }
+      </small>
+    </li>
+  );
+};
 
 AddMemberToBoard.propTypes = propTypes;
 

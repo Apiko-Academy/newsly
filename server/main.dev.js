@@ -58,7 +58,7 @@ app.use((req, res) => {
 
   switch (currentPath) {
     case '/': {
-      res.contentType('text/html').sendFile(path.join(__dirname, '../app/public/index.html'));
+      res.contentType('text/html').sendFile(path.join(__dirname, '../app/index.html'));
       if (!authenticated) {
         res.redirect('/signin');
       }
@@ -66,7 +66,7 @@ app.use((req, res) => {
     }
 
     case '/signin': {
-      res.contentType('text/html').sendFile(path.join(__dirname, '../app/public/index.html'));
+      res.contentType('text/html').sendFile(path.join(__dirname, '../app/index.html'));
       if (authenticated) {
         res.redirect('/');
       }

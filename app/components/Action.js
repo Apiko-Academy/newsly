@@ -11,13 +11,21 @@ import AddMemberToBoard from './actionTypes/AddMemberToBoard';
 const propTypes = {
   type: PropTypes.string,
   author: PropTypes.object,
-  data: PropTypes.object,
+  users: PropTypes.arrayOf(PropTypes.object),
+  data: PropTypes.shape({
+    board: PropTypes.object,
+    list: PropTypes.object,
+    card: PropTypes.object,
+    attachment: PropTypes.object,
+    text: PropTypes.string,
+    idMemberAdded: PropTypes.string,
+  }),
   date: PropTypes.string,
 };
 
 const Action = (props) => {
-  const { author, date } = props;
-  const { board, list, card, attachment, text, idMemberAdded } = props.data;
+  const { author, date, data, users } = props;
+  const { board, list, card, attachment, text, idMemberAdded } = data;
 
   switch (props.type) {
     case 'commentCard':
@@ -65,12 +73,18 @@ const Action = (props) => {
         attachment={attachment}
         date={date}
       />);
-    case 'addMemberToBoard':
+    case 'addMemberToBoard': {
+      const addedMemberName =
+        users.filter(m => m.id === idMemberAdded)[0];
+      const userName =
+        addedMemberName ? `new member(${addedMemberName.fullName})` : 'new member';
+
       return (<AddMemberToBoard
         author={author}
         board={board}
-        idMemberAdded={idMemberAdded}
+        addedMemberName={userName}
       />);
+    }
     default:
       return <div />;
   }

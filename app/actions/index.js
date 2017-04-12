@@ -30,36 +30,6 @@ function fetchUserSuccess(user) {
   };
 }
 
-export function fetchUsers() {
-  return (dispatch) => {
-    axios.get('/api/users')
-      .then(({ data }) => {
-        dispatch(fetchUsersSuccess(data));
-      })
-      .catch(errorHandler);
-  };
-}
-
-export function fetchBoards() {
-  return (dispatch) => {
-    axios.get('/api/boards')
-      .then(({ data }) => {
-        dispatch(fetchBoardsSuccess(data));
-      })
-      .catch(errorHandler);
-  };
-}
-
-export function fetchActions() {
-  return (dispatch) => {
-    axios.get('/api/actions')
-      .then(({ data }) => {
-        dispatch(fetchActionsSuccess(data));
-      })
-      .catch(errorHandler);
-  };
-}
-
 export function fetchUser() {
   return (dispatch) => {
     axios.get(`/api/users/me`)
@@ -70,7 +40,7 @@ export function fetchUser() {
   };
 }
 
-export function fetchFilteredBoards(query) {
+export function fetchBoards(query) {
   return (dispatch) => {
     axios.get('/api/boards', { params: query })
       .then(({ data }) => {
@@ -80,7 +50,7 @@ export function fetchFilteredBoards(query) {
   };
 }
 
-export function fetchFilteredUsers(query) {
+export function fetchUsers(query) {
   return (dispatch) => {
     axios.get('/api/users', { params: query })
       .then(({ data }) => {
@@ -90,7 +60,7 @@ export function fetchFilteredUsers(query) {
   };
 }
 
-export function fetchFilteredActions(query) {
+export function fetchActions(query) {
   return (dispatch) => {
     axios.get('/api/actions', { params: query })
       .then(({ data }) => {
@@ -102,12 +72,21 @@ export function fetchFilteredActions(query) {
 
 export function updateFilters(filter) {
   return (dispatch) => {
-    dispatch(fetchFilteredUsers(filter));
-    dispatch(fetchFilteredActions(filter));
+    dispatch(fetchUsers(filter));
+    dispatch(fetchActions(filter));
 
     dispatch({
       type: types.UPDATE_FILTER,
       filter,
     });
+  };
+}
+
+export function fetchAllData(filter = {}) {
+  return (dispatch) => {
+    dispatch(fetchUser());
+    dispatch(fetchUsers(filter));
+    dispatch(fetchActions(filter));
+    dispatch(fetchBoards(filter));
   };
 }

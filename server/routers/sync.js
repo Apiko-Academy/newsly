@@ -16,7 +16,9 @@ function getBoards(req, res, next) {
 
   const trello = new Trello(process.env.TRELLO_CONSUMER_KEY, req.user.token);
   const getAsync = Promise.promisify(trello.get);
-  Board.remove({ 'memberships.id': req.user.userId })
+  Board
+    .remove({ 'memberships.id': req.user.userId })
+    .exec()
     .then(() => {
       getAsync.call(trello, `/1/member/me/boards`, { filter: 'open' })
         .filter(board => board.memberships.length > 1)
@@ -34,12 +36,14 @@ function getBoards(req, res, next) {
             .then((members) => {
               Board.update({ boardId: board.id }, {
                 memberships: members,
-              }).catch(errorHandler('ERR: updating board'));
+              }).exec().catch(errorHandler('ERR: updating board'));
             })
             .catch(errorHandler('ERR: saving board'))
         )
-      .then(() => { next(); })
-      .catch(errorHandler('ERR: fetching boards'));
+        .then(() => {
+          next();
+        })
+        .catch(errorHandler('ERR: fetching boards'));
     })
     .catch(errorHandler('ERR: removing boards'));
 }
@@ -52,34 +56,36 @@ function getActions(req, res, next) {
   const findAsync = Promise.promisify(Board.find);
 
   findAsync.call(Board, { 'memberships.id': req.user.userId }, 'boardId')
-    .map(board => getAsync.call(trello, `/1/boards/${board.boardId}/actions`, {
-      limit: 100,
-      filter: [
-        'createCard',
-        'createBoard',
-        'createList',
-        'commentCard',
-        'addAttachmentToCard',
-        'deleteAttachmentFromCard',
-        'addMemberToBoard',
-      ],
-    }).map((action) => {
-      const dateObject = date.parse(action.date, 'YYYY/MM/DD HH:mm:ss');
+    .map(board => getAsync
+      .call(trello, `/1/boards/${board.boardId}/actions`, {
+        limit: 100,
+        filter: [
+          'createCard',
+          'createBoard',
+          'createList',
+          'commentCard',
+          'addAttachmentToCard',
+          'deleteAttachmentFromCard',
+          'addMemberToBoard',
+        ],
+      })
+      .map((action) => {
+        const dateObject = date.parse(action.date, 'YYYY/MM/DD HH:mm:ss');
 
-      return Action.update({
-        actionId: action.id,
-      }, {
-        actionId: action.id,
-        type: action.type,
-        date: date.format(dateObject, 'MMM DD, YY at HH:mm'),
-        createdAt: action.date,
-        author: action.memberCreator,
-        data: action.data,
-      }, {
-        upsert: true,
-        new: true,
-      }).catch(errorHandler('ERR: saving actions'));
-    }))
+        return Action.update({
+          actionId: action.id,
+        }, {
+          actionId: action.id,
+          type: action.type,
+          date: date.format(dateObject, 'MMM DD, YY at HH:mm'),
+          createdAt: action.date,
+          author: action.memberCreator,
+          data: action.data,
+        }, {
+          upsert: true,
+          new: true,
+        }).exec().catch(errorHandler('ERR: saving actions'));
+      }))
     .then(() => next())
     .catch(errorHandler('ERR: getting boards from db'));
 }

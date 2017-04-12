@@ -1,55 +1,64 @@
-  nav .brand-logo
-{
+nav .brand-logo {
   color: #100;
   font-weight: 200;
 }
-nav .currentUser
-{
+
+nav .currentUser {
   color: #200;
   font-weight: 200;
 }
-nav i
-{
+
+nav i {
   color: #200;
 }
-nav i:hover
-{
+
+nav i:hover {
   color: #26a69a;
 }
-.currentUserImg
-{
+
+.currentUserImg {
   margin-top: 5px;
   margin-right: 5px;
   margin-left: 5px;
 }
-.mainHeader
-{
+
+.mainHeader {
   text-transform: uppercase;
   font-weight: 500;
   font-size: 1.5em;
   color: #200;
 }
 
-blockquote
-{
+blockquote {
   border-left: 5px solid #26a69a;
 }
 
-#signin
-{
+#signin {
   padding-top: 30vw;
 }
 
-#signin div h1
-{
+#signin div h1 {
   font-weight: 800;
   text-transform: uppercase;
   color: #26a69a;
 }
 
-#signin div a
-{
+#signin div a {
   font-weight: 200;
   text-transform: uppercase;
   color: #004e42;
+}
+
+.clear-defaults {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: none;
+  border: 0;
+  box-shadow: 0;
+  outline: 0;
+}
+
+.clear-defaults:focus, .clear-defaults:hover {
+  background: none;
 }
