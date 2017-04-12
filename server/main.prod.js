@@ -30,7 +30,7 @@ const db = mongoose.connection;
 db.on('error', err => winston.error(`Connection error${err.message}`));
 db.once('open', () => winston.info('Connection opened'));
 
-app.use(express.static(path.join(__dirname, './public')));
+app.use(express.static(path.join(__dirname, '../app/public')));
 app.use(express.static('dist'));
 app.use(session({ secret: process.env.SESSION_SECRET }));
 passportConfig(app);
@@ -48,7 +48,7 @@ app.use((req, res) => {
 
   switch (currentPath) {
     case '/': {
-      res.contentType('text/html').sendFile(path.join(__dirname, './index.html'));
+      res.contentType('text/html').sendFile(path.join(__dirname, '../app/index.html'));
       if (!authenticated) {
         res.redirect('/signin');
       }
@@ -56,7 +56,7 @@ app.use((req, res) => {
     }
 
     case '/signin': {
-      res.contentType('text/html').sendFile(path.join(__dirname, './index.html'));
+      res.contentType('text/html').sendFile(path.join(__dirname, '../app/index.html'));
       if (authenticated) {
         res.redirect('/');
       }
