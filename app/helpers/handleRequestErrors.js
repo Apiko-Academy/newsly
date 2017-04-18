@@ -1,5 +1,5 @@
-// import toaster from 'toaster';
+import toastr from 'toastr';
 
 export default function (err) {
-  // toaster.error(err.message);
+  toastr.error(err.message);
 }
