@@ -9,6 +9,7 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 import winston from 'winston';
 import passportConfig from './config/passport/passport.config';
 import webpackConfig from './../webpack.config.dev';
+import routesMiddleware from './helpers/routesMiddleware';
 
 import authRouter from './routers/auth';
 import logoutRouter from './routers/logout';
@@ -52,32 +53,7 @@ app.use('/api/users', usersApiRouter);
 app.use('/api/boards', boardsApiRouter);
 app.use('/api/actions', actionsApiRouter);
 
-app.use((req, res) => {
-  const currentPath = req.path;
-  const authenticated = req.isAuthenticated();
-
-  switch (currentPath) {
-    case '/': {
-      res.contentType('text/html').sendFile(path.join(__dirname, '../app/index.html'));
-      if (!authenticated) {
-        res.redirect('/signin');
-      }
-      break;
-    }
-
-    case '/signin': {
-      res.contentType('text/html').sendFile(path.join(__dirname, '../app/index.html'));
-      if (authenticated) {
-        res.redirect('/');
-      }
-      break;
-    }
-
-    default: {
-      res.redirect('/signin');
-    }
-  }
-});
+app.use(routesMiddleware);
 
 app.listen(port, () => {
   winston.info(`app running on ${port} port`);

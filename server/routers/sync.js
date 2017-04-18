@@ -53,9 +53,10 @@ function getActions(req, res, next) {
 
   const trello = new Trello(process.env.TRELLO_CONSUMER_KEY, req.user.token);
   const getAsync = Promise.promisify(trello.get);
-  const findAsync = Promise.promisify(Board.find);
 
-  findAsync.call(Board, { 'memberships.id': req.user.userId }, 'boardId')
+  Board
+    .find(Board, { 'memberships.id': req.user.userId }, 'boardId')
+    .exec()
     .map(board => getAsync
       .call(trello, `/1/boards/${board.boardId}/actions`, {
         limit: 100,

@@ -12,6 +12,7 @@ import syncRouter from './routers/sync';
 import usersApiRouter from './routers/api/trelloUsers';
 import boardsApiRouter from './routers/api/boards';
 import actionsApiRouter from './routers/api/actions';
+import routesMiddleware from './helpers/routesMiddleware';
 
 dotenv.config();
 
@@ -42,32 +43,7 @@ app.use('/api/users', usersApiRouter);
 app.use('/api/boards', boardsApiRouter);
 app.use('/api/actions', actionsApiRouter);
 
-app.use((req, res) => {
-  const currentPath = req.path;
-  const authenticated = req.isAuthenticated();
-
-  switch (currentPath) {
-    case '/': {
-      res.contentType('text/html').sendFile(path.join(__dirname, '../app/index.html'));
-      if (!authenticated) {
-        res.redirect('/signin');
-      }
-      break;
-    }
-
-    case '/signin': {
-      res.contentType('text/html').sendFile(path.join(__dirname, '../app/index.html'));
-      if (authenticated) {
-        res.redirect('/');
-      }
-      break;
-    }
-
-    default: {
-      res.redirect('/signin');
-    }
-  }
-});
+app.use(routesMiddleware);
 
 app.listen(port, () => {
   winston.info(`app running on ${port} port`);
